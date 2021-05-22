@@ -1,0 +1,63 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
+
+    world_path = os.path.join(get_package_share_directory('tello_gazebo'),
+                              'worlds', 'empty.world')
+    launch_file_dir = os.path.join(
+        get_package_share_directory('tello_gazebo'), 'launch')
+
+    pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
+
+    urdf_path = os.path.join(
+        get_package_share_directory('tello_description'),
+        'urdf',
+        'tello.urdf')
+
+    print(urdf_path)
+    print(world_path)
+
+    return LaunchDescription([
+        # Gazebo Server
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')
+            ),
+            launch_arguments={'world': world_path}.items(),
+        ),
+
+        # Gazebo Client
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')
+            ),
+        ),
+
+        # Spawn urdf
+        Node(package='gazebo_ros', executable='spawn_entity.py',
+             arguments=['-entity', 'tello', '-file', urdf_path]),
+
+        # Robot State Publisher
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [launch_file_dir, '/robot_state_publisher.launch.py']),
+            launch_arguments={'use_sim_time': use_sim_time}.items(),
+        ),
+
+        # Tello Driver
+        Node(package='tello_driver',
+             executable='tello_joy_main', namespace="drone"),
+
+        # Joystick
+        Node(package='joy', executable='joy_node', namespace="drone"),
+    ])
