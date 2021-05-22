@@ -1,3 +1,6 @@
+export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-11:${GAZEBO_RESOURCE_PATH}
+
+
 ## Running a Tello simulation in [Gazebo](http://gazebosim.org/)
 
 `tello_gazebo` consists of several components:
