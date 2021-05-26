@@ -1,6 +1,7 @@
 #include <chrono>
 #include <nav_msgs/msg/detail/odometry__struct.hpp>
 #include <string>
+#include <tello_interfaces/msg/detail/tello_status__struct.hpp>
 
 #include "gazebo/gazebo.hh"
 #include "gazebo/physics/physics.hh"
@@ -8,9 +9,8 @@
 #include "gazebo_ros/node.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
-#include "tello_msgs/msg/flight_data.hpp"
-#include "tello_msgs/msg/tello_response.hpp"
-#include "tello_msgs/srv/tello_action.hpp"
+#include "tello_interfaces/msg/tello_status.hpp"
+#include "tello_interfaces/srv/tello_action.hpp"
 
 #include "tf2/LinearMath/Quaternion.h"
 
@@ -91,13 +91,11 @@ class TelloPlugin : public gazebo::ModelPlugin {
   gazebo_ros::Node::SharedPtr node_;
 
   // ROS publishers
-  rclcpp::Publisher<tello_msgs::msg::FlightData>::SharedPtr flight_data_pub_;
+  rclcpp::Publisher<tello_interfaces::msg::TelloStatus>::SharedPtr status_data_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
-  rclcpp::Publisher<tello_msgs::msg::TelloResponse>::SharedPtr
-      tello_response_pub_;
 
   // ROS services
-  rclcpp::Service<tello_msgs::srv::TelloAction>::SharedPtr command_srv_;
+  rclcpp::Service<tello_interfaces::srv::TelloAction>::SharedPtr command_srv_;
 
   // ROS subscriptions
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
@@ -235,14 +233,11 @@ public:
     // ROS publishers
     odom_pub_ =
         node_->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
-    flight_data_pub_ =
-        node_->create_publisher<tello_msgs::msg::FlightData>("flight_data", 1);
-    tello_response_pub_ =
-        node_->create_publisher<tello_msgs::msg::TelloResponse>(
-            "tello_response", 1);
+    status_data_pub_ =
+        node_->create_publisher<tello_interfaces::msg::TelloStatus>("status", 1);
 
     // ROS service
-    command_srv_ = node_->create_service<tello_msgs::srv::TelloAction>(
+    command_srv_ = node_->create_service<tello_interfaces::srv::TelloAction>(
         "tello_action",
         std::bind(&TelloPlugin::command_callback, this, std::placeholders::_1,
                   std::placeholders::_2, std::placeholders::_3));
@@ -327,8 +322,8 @@ public:
 
   void command_callback(
       const std::shared_ptr<rmw_request_id_t> request_header,
-      const std::shared_ptr<tello_msgs::srv::TelloAction::Request> request,
-      std::shared_ptr<tello_msgs::srv::TelloAction::Response> response) {
+      const std::shared_ptr<tello_interfaces::srv::TelloAction::Request> request,
+      std::shared_ptr<tello_interfaces::srv::TelloAction::Response> response) {
     if (request->cmd == "takeoff" && flight_state_ == FlightState::landed) {
       transition(FlightState::taking_off);
       response->rc = response->OK;
@@ -357,12 +352,12 @@ public:
     }
   }
 
-  void respond_ok() {
-    tello_msgs::msg::TelloResponse msg;
-    msg.rc = msg.OK;
-    msg.str = "ok";
-    tello_response_pub_->publish(msg);
-  }
+  // void respond_ok() {
+  //   tello_interfaces::msg::TelloResponse msg;
+  //   msg.rc = msg.OK;
+  //   msg.str = "ok";
+  //   tello_response_pub_->publish(msg);
+  // }
 
   void spin_10Hz() {
     rclcpp::Time ros_time = node_->now();
@@ -384,19 +379,19 @@ public:
     ignition::math::Pose3d pose = base_link_->WorldPose();
 
     // Publish flight data
-    tello_msgs::msg::FlightData flight_data_msg;
-    flight_data_msg.header.stamp = ros_time;
+    tello_interfaces::msg::TelloStatus flight_data_msg;
+    // flight_data_msg.header.stamp = ros_time;
 
-    flight_data_msg.sdk = flight_data_msg.SDK_1_3;
-    flight_data_msg.bat = battery_percent;
+    // flight_data_msg.sdk = flight_data_msg.SDK_1_3;
+    // flight_data_msg.bat = battery_percent;
 
-    flight_data_msg.vgx = base_link_->RelativeLinearVel().X();
-    flight_data_msg.vgy = base_link_->RelativeLinearVel().Y();
-    flight_data_msg.vgz = base_link_->RelativeLinearVel().Z();
+    // flight_data_msg.vgx = base_link_->RelativeLinearVel().X();
+    // flight_data_msg.vgy = base_link_->RelativeLinearVel().Y();
+    // flight_data_msg.vgz = base_link_->RelativeLinearVel().Z();
 
-    flight_data_msg.yaw = pose.Yaw();
+    // flight_data_msg.yaw = pose.Yaw();
 
-    flight_data_pub_->publish(flight_data_msg);
+    // status_data_pub_->publish(flight_data_msg);
 
     // Publish odom data
     nav_msgs::msg::Odometry odom_msg;
@@ -426,11 +421,11 @@ public:
     if (flight_state_ == FlightState::taking_off &&
         pose.Pos().Z() > TAKEOFF_Z) {
       transition(FlightState::flying);
-      respond_ok();
+      // respond_ok();
     } else if (flight_state_ == FlightState::landing &&
                pose.Pos().Z() < LAND_Z) {
       transition(FlightState::landed);
-      respond_ok();
+      // respond_ok();
     }
   }
 };

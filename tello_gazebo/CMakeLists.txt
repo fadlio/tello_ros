@@ -18,7 +18,7 @@ endif ()
 # Emulate colcon
 if ($ENV{CLION_IDE})
   message("Running inside CLion")
-  set(tello_msgs_DIR "${PROJECT_SOURCE_DIR}/../../../install/tello_msgs/share/tello_msgs/cmake")
+  set(tello_interfaces_DIR "${PROJECT_SOURCE_DIR}/../../../install/tello_interfaces/share/tello_interfaces/cmake")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRUN_INSIDE_CLION")
 endif ()
 
@@ -33,7 +33,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(tello_msgs REQUIRED)
+find_package(tello_interfaces REQUIRED)
 
 # Local includes
 include_directories(
@@ -42,7 +42,7 @@ include_directories(
   ${geometry_msgs_INCLUDE_DIRS}
   ${nav_msgs_INCLUDE_DIRS}
   ${std_msgs_INCLUDE_DIRS}
-  ${tello_msgs_INCLUDE_DIRS}
+  ${tello_interfaces_INCLUDE_DIRS}
 )
 
 #=============
@@ -63,7 +63,7 @@ ament_target_dependencies(
   rclcpp
   std_msgs
   nav_msgs
-  tello_msgs
+  tello_interfaces
 )
 
 #=============
