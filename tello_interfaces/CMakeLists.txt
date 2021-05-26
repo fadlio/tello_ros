@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(tello_msgs)
+project(tello_interfaces)
 
 # Default to C++14
 if (NOT CMAKE_CXX_STANDARD)
@@ -32,8 +32,7 @@ find_package(std_msgs REQUIRED)
 # Generate ROS interfaces
 rosidl_generate_interfaces(
   ${PROJECT_NAME}
-  "msg/FlightData.msg"
-  "msg/TelloResponse.msg"
+  "msg/TelloStatus.msg"
   "srv/TelloAction.srv"
   DEPENDENCIES std_msgs
 )
