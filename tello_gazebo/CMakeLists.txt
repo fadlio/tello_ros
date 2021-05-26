@@ -27,6 +27,8 @@ find_package(ament_cmake REQUIRED)
 find_package(gazebo REQUIRED)  # Note uppercase variables in /usr/lib/x86_64-linux-gnu/cmake/gazebo/gazebo-config.cmake
 find_package(gazebo_dev REQUIRED)
 find_package(gazebo_ros REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -38,6 +40,7 @@ include_directories(
   include
   ${gazebo_ros_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
+  ${nav_msgs_INCLUDE_DIRS}
   ${std_msgs_INCLUDE_DIRS}
   ${tello_msgs_INCLUDE_DIRS}
 )
@@ -55,9 +58,11 @@ ament_target_dependencies(
   TelloPlugin
   gazebo_dev
   gazebo_ros
+  tf2
   geometry_msgs
   rclcpp
   std_msgs
+  nav_msgs
   tello_msgs
 )
 
