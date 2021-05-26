@@ -1,0 +1,6 @@
+[submodule "tello_driver"]
+	path = tello_driver
+	url = https://github.com/fadlio/tello_driver.git
+[submodule "h264_image_transport"]
+	path = h264_image_transport
+	url = https://github.com/clydemcqueen/h264_image_transport.git
