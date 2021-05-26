@@ -1,2 +1,6 @@
 .idea
 cmake-build-debug
+.cache
+.vscode
+log
+compile_commands.json
